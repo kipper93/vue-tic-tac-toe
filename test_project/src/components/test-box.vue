@@ -14,6 +14,7 @@
 
       </div>
     </div>
+
   </div>
 </template>
 
@@ -23,6 +24,8 @@ export default {
   data () {
     return {
       msg: 'Tic Tac Toe',
+      // 结果
+      result: false,
       // 标记
       turn: 1,
       // 棋子信息
@@ -34,6 +37,42 @@ export default {
     }
   },
   methods: {
+    // 结果弹窗
+    resultMessageBox (message) {
+      this.$alert(message, '游戏结束', {
+        confirmButtonText: '确定',
+        callback: action => {
+          // 重置
+          Object.assign(this.$data, this.$options.data())
+        }
+      })
+    },
+    // 游戏规则判断
+    chessrRule () {
+      for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 3; j++) {
+          let list = this.chessList
+          console.log(list)
+          // 横向3/-3 纵向3/-3 斜下3/-3 斜上3/-3
+          let rowCell = list[i][0] + list[i][1] + list[i][2] === 3 || list[i][0] + list[i][1] + list[i][2] === -3
+          let colCell = list[0][j] + list[1][j] + list[2][j] === 3 || list[0][j] + list[1][j] + list[2][j] === -3
+          let slantUpCell = list[2][0] + list[1][1] + list[0][2] === 3 || list[2][0] + list[1][1] + list[0][2] === -3
+          let slantDownCell = list[0][0] + list[1][1] + list[2][2] === 3 || list[0][0] + list[1][1] + list[2][2] === -3
+          if (rowCell || colCell || slantUpCell || slantDownCell) {
+            let message = this.turn === 2 ? '黑方胜✌️' : '白方胜✌️'
+            this.resultMessageBox(message)
+          }
+          // 平局 全部非0 和是1
+          let [a, b, c] = this.chessList
+          let arrList = [...a, ...b, ...c]
+          let resule = arrList.filter((item) => item)
+          if (resule && resule.length === 9) {
+            let message = '平局'
+            this.resultMessageBox(message)
+          }
+        }
+      }
+    },
     // 落子
     playChess (x, y) {
       if (this.chessList[x][y] !== 0) {
@@ -42,9 +81,11 @@ export default {
         if (this.turn === 1) {
           this.$set(this.chessList[x], y, 1)
           this.turn = 2
+          this.chessrRule()
         } else {
           this.$set(this.chessList[x], y, -1)
           this.turn = 1
+          this.chessrRule()
         }
       }
     }
